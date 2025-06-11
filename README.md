@@ -1,10 +1,6 @@
-# Running Prediction - Master Thesis Project
+# Running Performance Prediction
 
-This repository contains the code and analysis for my master thesis project focused on running performance prediction using data from the French Athletics Federation (FFA).
-
-## Project Overview
-
-The project aims to analyze and predict running performances using historical data from the French Athletics Federation. The analysis includes data collection, processing, and machine learning models to predict athlete performances.
+This project focuses on predicting running performance using machine learning techniques, specifically analyzing data from the French Athletics Federation (FFA) database.
 
 ## Project Structure
 
@@ -15,8 +11,9 @@ The project aims to analyze and predict running performances using historical da
 │   ├── marathon_dataset.csv        # Processed marathon data
 │   ├── raw_master_ffa_results.csv  # Raw FFA results (not in repo)
 │   └── athlets.csv           # Athlete information (not in repo)
-├── models/                    # Trained models
-├── figs/                      # Generated figures
+├── models/                   # Trained models (see below for exclusions)
+│   ├── README.md             # Model documentation
+│   └── best_pipeline/        # Best performing models for each algorithm
 ├── ffa_scraper.py            # FFA website scraper
 ├── scrap_data.py             # Data collection script
 ├── extract_athlets_results.ipynb  # Athlete results extraction
@@ -48,71 +45,13 @@ The project uses data from the French Athletics Federation (FFA) database, colle
 
 Note: Raw data files are not included in the repository due to their size. See `data/README.md` for details on how to obtain and process the raw data.
 
+## Model Files and Exclusions
+
+The `models/` directory contains trained machine learning models. **Large model files** (such as RandomForest models, which can exceed 50MB) are **excluded from the repository** due to GitHub's file size limitations. Only smaller models (e.g., Linear Regression, Ridge, Lasso, SVR, etc.) are included.
+
+If you need the excluded models, you can retrain them using the provided scripts and notebooks. See `models/README.md` for more details on the available models and how to use or retrain them.
+
 ## Setup
 
 1. Clone the repository:
-```bash
-git clone https://github.com/maciejkar/running_prediction_master_thesis.git
-cd running_prediction_master_thesis
 ```
-
-2. Create and activate a virtual environment:
-```bash
-python -m venv venv
-# On Windows:
-venv\Scripts\activate
-# On Unix or MacOS:
-source venv/bin/activate
-```
-
-3. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
-
-## Data Collection
-
-The project uses web scraping to collect athlete data from the French Athletics Federation website. The data collection process is implemented in `ffa_scraper.py` and `scrap_data.py`.
-
-### Data Structure
-The collected data includes:
-- Athlete information (name, date of birth, sex, weight, height)
-- Event details (date, name, tour, location)
-- Performance metrics
-
-## Analysis
-
-The analysis is conducted in Jupyter notebooks:
-- `transform_data.ipynb`: Data preprocessing and feature engineering
-- `main_part.ipynb`: Main analysis including model training and evaluation
-
-## Requirements
-
-The project requires Python 3.12.6 and the following main dependencies (see requirements.txt for complete list):
-- pandas
-- numpy
-- requests
-- beautifulsoup4
-- jupyter
-- scikit-learn
-- matplotlib
-- seaborn
-
-## Usage
-
-1. Data Collection:
-   - Run the scraping scripts to collect athlete data
-   - Process the raw data using the provided notebooks
-
-2. Analysis:
-   - Follow the notebooks in sequence:
-     1. `transform_data.ipynb` for data preprocessing
-     2. `main_part.ipynb` for the main analysis
-
-## License
-
-[Add your chosen license here]
-
-## Author
-
-Maciej Karczewski
