@@ -19,8 +19,25 @@ import os
 from tqdm import tqdm
 
 class FFAScraper:
-    def __init__(self):
-        self.base_url = "https://bases.athle.fr"
+    """
+    A class for scraping athlete data from the French Athletics Federation (FFA) website.
+
+    This class provides methods to:
+    - Search for athletes
+    - Extract athlete information
+    - Get athlete results
+    - Handle rate limiting and errors
+    """
+
+    def __init__(self, base_url="https://bases.athle.fr/asp.net/athletes.aspx"):
+        """
+        Initialize the FFAScraper with the base URL.
+
+        Args:
+            base_url (str): The base URL for the FFA athlete search page
+        """
+        self.base_url = base_url
+        self.session = requests.Session()
         self.headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
         }
@@ -259,32 +276,125 @@ class FFAScraper:
         except Exception as e:
             print(f"Error saving results: {e}")
 
+    def search_athletes(self, name, max_pages=10):
+        """
+        Search for athletes by name.
+
+        Args:
+            name (str): The name to search for
+            max_pages (int): Maximum number of pages to search through
+
+        Returns:
+            list: List of dictionaries containing athlete information
+        """
+        athletes = []
+        page = 1
+
+        while page <= max_pages:
+            url = f"{self.base_url}?nom={name}&p={page}"
+            try:
+                response = self.session.get(url, headers=self.headers)
+                if response.status_code == 200:
+                    soup = BeautifulSoup(response.text, 'html.parser')
+                    athlete_rows = soup.find_all('tr', class_='ligne1') + soup.find_all('tr', class_='ligne2')
+
+                    if not athlete_rows:
+                        break
+
+                    for row in athlete_rows:
+                        cols = row.find_all('td')
+                        if len(cols) >= 3:
+                            athlete = {
+                                'name': cols[0].text.strip(),
+                                'club': cols[1].text.strip(),
+                                'link': cols[0].find('a')['href'] if cols[0].find('a') else None
+                            }
+                            athletes.append(athlete)
+
+                    page += 1
+                    time.sleep(1)  # Rate limiting
+                else:
+                    print(f"Error: {response.status_code}")
+                    break
+            except Exception as e:
+                print(f"Error searching athletes: {str(e)}")
+                break
+
+        return athletes
+
+    def get_athlete_results(self, athlete_url, years=None):
+        """
+        Get results for a specific athlete.
+
+        Args:
+            athlete_url (str): The URL of the athlete's results page
+            years (list): List of years to get results for. If None, gets all available years.
+
+        Returns:
+            dict: Dictionary containing athlete information and results
+        """
+        if years is None:
+            years = range(2015, 2024)  # Default to last 9 years
+
+        results = {
+            'personal_info': {},
+            'results': []
+        }
+
+        for year in years:
+            url = f"{athlete_url}&saison={year}"
+            try:
+                response = self.session.get(url, headers=self.headers)
+                if response.status_code == 200:
+                    soup = BeautifulSoup(response.text, 'html.parser')
+
+                    # Get personal info from first page only
+                    if year == years[0]:
+                        info_table = soup.find('table', class_='tableau1')
+                        if info_table:
+                            for row in info_table.find_all('tr'):
+                                cols = row.find_all('td')
+                                if len(cols) >= 2:
+                                    key = cols[0].text.strip()
+                                    value = cols[1].text.strip()
+                                    results['personal_info'][key] = value
+
+                    # Get results
+                    results_table = soup.find('table', class_='tableau2')
+                    if results_table:
+                        for row in results_table.find_all('tr')[1:]:  # Skip header
+                            cols = row.find_all('td')
+                            if len(cols) >= 6:
+                                result = {
+                                    'date': cols[0].text.strip(),
+                                    'competition': cols[1].text.strip(),
+                                    'place': cols[2].text.strip(),
+                                    'performance': cols[3].text.strip(),
+                                    'wind': cols[4].text.strip(),
+                                    'points': cols[5].text.strip()
+                                }
+                                results['results'].append(result)
+
+                    time.sleep(1)  # Rate limiting
+                else:
+                    print(f"Error: {response.status_code}")
+            except Exception as e:
+                print(f"Error getting results: {str(e)}")
+
+        return results
+
 def main():
+    """
+    Main function to demonstrate the FFAScraper usage.
+    """
     scraper = FFAScraper()
-    df = pd.read_csv(r"data/athlets.csv")
-    athlets = df['athlet'].tolist()
-    athlets_pages = df['athlet_page'].tolist()
-    try:
-        events = scraper.get_all_events(year=2021)
-        print(f"Found {len(events)} events")
-        for event in tqdm(events, total=len(events)):
-            results = scraper.get_competition_athlets(event['url'],skip_athlets=athlets)
-            # Optionally, print out details from results
-            for result in results:
-                print(f"Athlete: {result['athlete_name']}, page: {result['athlete_page']}")
-                athlets.append(result['athlete_name'])
-                athlets_pages.append(result['athlete_page'])
-    except Exception as e:
-        raise e
 
-
-    finally:
-        # Explicitly close the WebDriver when we're done
-        scraper.close()
-
-        df = pd.DataFrame({'athlet':athlets, 'athlet_page':athlets_pages})
-        df = df.drop_duplicates()
-        df.to_csv(r"data/athlets.csv", header=True, index=False)
+    # Example usage
+    athletes = scraper.search_athletes("Dupont")
+    if athletes:
+        results = scraper.get_athlete_results(athletes[0]['link'])
+        print(f"Found {len(athletes)} athletes")
+        print(f"Got {len(results['results'])} results for {athletes[0]['name']}")
 
 if __name__ == "__main__":
     main()

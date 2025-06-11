@@ -26,7 +26,17 @@ build/
 data/*.csv
 !data/halfmarathon_dataset.csv
 !data/marathon_dataset.csv
-models/
+models/*.joblib
+!models/best_pipeline/*.joblib
+!models/best_pipeline/LinearRegression_*.joblib
+!models/best_pipeline/Ridge_*.joblib
+!models/best_pipeline/Lasso_*.joblib
+!models/best_pipeline/ElasticNet_*.joblib
+!models/best_pipeline/SVR_*.joblib
+!models/best_pipeline/DecisionTreeRegressor_*.joblib
+!models/best_pipeline/GradientBoostingRegressor_*.joblib
+!models/best_pipeline/multilayernn_*.joblib
+!models/best_pipeline/KNeighborsRegressor_*.joblib
 figs/
 
 # Logs
