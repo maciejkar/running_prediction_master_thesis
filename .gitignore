@@ -23,7 +23,9 @@ build/
 *.egg-info/
 
 # Data and model files
-data/
+data/*.csv
+!data/halfmarathon_dataset.csv
+!data/marathon_dataset.csv
 models/
 figs/
 

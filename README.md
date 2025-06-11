@@ -8,19 +8,45 @@ The project aims to analyze and predict running performances using historical da
 
 ## Project Structure
 
-### Data Collection
-- `ffa_scraper.py`: Web scraper for collecting athlete data from the French Athletics Federation website
-- `scrap_data.py`: Utility scripts for data collection and processing
-- `extract_athlets_results.ipynb`: Jupyter notebook for extracting and processing athlete results
+```
+├── data/                      # Data directory
+│   ├── README.md             # Data documentation
+│   ├── halfmarathon_dataset.csv    # Processed half marathon data
+│   ├── marathon_dataset.csv        # Processed marathon data
+│   ├── raw_master_ffa_results.csv  # Raw FFA results (not in repo)
+│   └── athlets.csv           # Athlete information (not in repo)
+├── models/                    # Trained models
+├── figs/                      # Generated figures
+├── ffa_scraper.py            # FFA website scraper
+├── scrap_data.py             # Data collection script
+├── extract_athlets_results.ipynb  # Athlete results extraction
+├── transform_data.ipynb      # Data preprocessing
+└── main_part.ipynb           # Main analysis notebook
+```
 
-### Data Analysis
-- `transform_data.ipynb`: Data transformation and preprocessing notebook
-- `main_part.ipynb`: Main analysis notebook containing the core research work
+### Data Collection and Processing
 
-### Data Storage
-- `data/`: Directory containing raw and processed data files
-- `models/`: Directory for storing trained machine learning models
-- `figs/`: Directory for storing generated figures and visualizations
+The project uses data from the French Athletics Federation (FFA) database, collected through web scraping. The data collection process involves:
+
+1. **Data Collection**:
+   - `ffa_scraper.py`: Main scraper for FFA website
+   - `scrap_data.py`: Script to collect athlete information
+   - `extract_athlets_results.ipynb`: Extracts detailed results for each athlete
+
+2. **Data Processing**:
+   - `transform_data.ipynb`: Processes raw data into structured datasets
+   - Creates two main datasets:
+     - `halfmarathon_dataset.csv`: Processed half marathon data
+     - `marathon_dataset.csv`: Processed marathon data
+
+3. **Data Structure**:
+   The processed datasets include:
+   - Athlete information (age, gender, physical characteristics)
+   - Historical performance data
+   - Race conditions and locations
+   - Performance metrics
+
+Note: Raw data files are not included in the repository due to their size. See `data/README.md` for details on how to obtain and process the raw data.
 
 ## Setup
 
